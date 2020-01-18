@@ -6,16 +6,20 @@ from custom_user.models import Profile
 from custom_user.serializers import ProfileSerializer
 from custom_user.forms import RegisterForm
 from rest_framework.decorators import api_view
-
+import math
 from drf_yasg.utils import swagger_auto_schema
 import drf_yasg.openapi as openapi
 
 
-def required_exp(n):
+def get_level(exp):
     total = 0
-    for i in range(1, n + 1):
-        total = int(math.log10(n + 1) * 200) - 40
-    return total
+    level = 1
+    while True:
+        level += 1
+        total += int(math.log10(level + 1) * 200) - 40
+        if exp < total:
+            break
+    return level
 
 
 class ProfileAPIView(APIView):
@@ -27,7 +31,7 @@ class ProfileAPIView(APIView):
         if request.user.is_authenticated:
             profile = Profile.objects.get(user=request.user)
             data = ProfileSerializer(profile).data
-            data['level'] = required_exp(data['exp'])
+            data['level'] = get_level(data['exp'])
             return Response(data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -92,5 +96,5 @@ def page_ranking(request):
     serializer = ProfileSerializer(profiles, many=True)
     users = serializer.data[begin:end]
     for user in users:
-        user['level'] = required_exp(user['exp'])
+        user['level'] = get_level(user['exp'])
     return Response(users)
