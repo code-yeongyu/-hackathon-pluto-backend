@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'account',
     # added by fastdj
     'custom_user',
+    'sslserver',
     'drf_yasg',
 ]
 
